@@ -35,7 +35,7 @@ below.
 | Display | 480x272, RGB565, 60 Hz mode |
 | USB | High Speed on CN12 (external ULPI PHY) or Full Speed on CN13, chosen when building |
 | USB id | `1d50:614d`, the id the Linux `gud` driver binds to |
-| Speed | 30 full frames per second at High Speed (7.8 MB/s, measured) |
+| Speed | full frames per second: 30 at High Speed (7.8 MB/s), 3 at Full Speed (780 KB/s), measured |
 | Host | Linux 5.13 or later with the `gud` driver (`CONFIG_DRM_GUD`) |
 | Firmware | STM32CubeF7 v1.17.4: HAL, BSP and the ST USB Device library |
 
@@ -331,6 +331,8 @@ Reading /dev/ttyACM0 at 115200 baud, Ctrl-C to stop
 - Updates are summed up once a second. A full frame is 261120 bytes.
 
 Any terminal program works too, at 115200 8N1: `picocom -b 115200 /dev/ttyACM0`.
+Run only one program on the port at a time: two readers split the lines between them,
+and each one shows a log with gaps.
 
 ### 3. Draw on the display
 
@@ -473,10 +475,16 @@ The protocol is specified by the kernel header
 
 ### Speed
 
-At High Speed the display takes 30 full frames per second, 7.8 MB/s, which was the frame
-rate `fb_animation.py` asked for. Full Speed is limited by its 12 Mbit/s bus to about
-1 MB/s, roughly 3 to 4 full frames per second. A desktop mostly sends the rectangles
-that changed, which are much smaller.
+Measured with full frames of 261120 bytes:
+
+| | Full frames per second | Throughput |
+|---|---|---|
+| High Speed, CN12 | 30 | 7.8 MB/s |
+| Full Speed, CN13 | 3 | 780 KB/s |
+
+At High Speed, 30 frames per second was the rate `fb_animation.py` asked for, so the
+display can take more. Full Speed is limited by its 12 Mbit/s bus. A desktop mostly
+sends the rectangles that changed, which are much smaller than a full frame.
 
 ## Changing the Display
 
